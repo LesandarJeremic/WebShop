@@ -1,0 +1,195 @@
+﻿@model Models.Product
+@{
+  
+
+
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Alter</title>
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <style>
+        
+        input{
+           
+               font-size:large;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div> 
+        Product ID: <input disabled id ="ProductIdText" type="text" value="@if (Model.Id != 0) {@Model.Id;}" />
+<br /> ProductName:<input maxlength="50" id="ProductNameText" type="text" value="@if (Model.Id != 0) {@Model.Name;}"/>
+<br />
+Product Description: <input maxlength="150" id="ProductDescriptionText" type="text" value="@if (Model.Id != 0) {@Model.Description;}"/>
+
+
+
+
+<br />
+Product Category:<input maxlength="20" id="ProductCategoryText" type="text" value="@if (Model.Id != 0) {@Model.Category;}" />
+
+
+
+
+<br />
+Product Price: <input maxlength="30" id="ProductPriceText" type="text" value="@if (Model.Id != 0) {@Model.Price;}" />
+
+
+
+
+<br />
+Product Producer: <input maxlength="50" id="ProductProducerText" type="text" value="@if (Model.Id != 0) {@Model.Producer;}"/>
+
+
+
+
+<br />
+Product Supplier: <input maxlength="50" id="ProductSupplierText" type="text" value="@if (Model.Id != 0) {@Model.Supplier; } " />
+
+
+
+
+
+<br />
+Update  <input disabled id="RadioUpdate" type="radio" name="R" />
+
+
+
+
+
+
+<br />
+Create <input disabled id="RadioCreate" type="radio" name="R"  />
+
+
+
+
+
+
+<br />
+
+
+
+
+
+
+
+<input id="Button1" type="button" value="Ok" onclick="Edit()" />
+        
+<input id="Button2" type="button" value="Back To Selection" onclick="location.href='@Url.Action("Index", "Main")'" />
+
+
+
+
+
+<br />
+
+        
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+<script>
+    
+   
+    
+    function setRadioButton() {
+        if(
+        document.getElementById("ProductIdText").value != 0)
+            document.getElementById("RadioUpdate").checked=true;
+       
+           
+        else
+            document.getElementById("RadioCreate").checked=true;
+           
+    }
+    document.onload=setRadioButton();
+
+
+
+//function Delete() {
+
+//}
+//function Create() {
+
+//}
+
+
+
+function Edit() {
+   
+    var request = new XMLHttpRequest();
+
+    var Product = new Object();
+    
+
+ 
+    if (document.getElementById("RadioUpdate").checked==true)
+        Product.Id = document.getElementById("ProductIdText").value;
+    else Product.Id = 0;
+
+   
+
+        if (!document.getElementById("ProductNameText").value) { alert("Product name missing"); return; }
+        Product.Name = document.getElementById("ProductNameText").value;
+            
+        Product.Description = document.getElementById("ProductDescriptionText").value;
+        if (!document.getElementById("ProductProducerText").value) { alert("Product Producer missing"); return; }
+
+        Product.Producer = document.getElementById("ProductProducerText").value;
+        if (!document.getElementById("ProductSupplierText").value) { alert("Product Supplier missing"); return; }
+
+        Product.Supplier = document.getElementById("ProductSupplierText").value;
+
+        Product.Category = document.getElementById("ProductCategoryText").value;
+
+        if (!document.getElementById("ProductPriceText").value) { alert("Product Price missing"); return; }
+        Product.Price =parseFloat(document.getElementById("ProductPriceText").value);
+    
+                request.onreadystatechange = function () {
+                    if (request.readyState == 4 && request.status == 200) {
+
+                        if (document.getElementById("RadioUpdate").checked==true) alert("Product updated successfully!");
+                        else alert("Product created Successfully")
+                       
+                    }
+
+                }
+                if (document.getElementById("RadioUpdate").checked==true) {
+                     request.open("POST", "Update", true);
+                } else   
+                        request.open("POST", "Create", true);
+             
+                    request.setRequestHeader('Content-Type', 'application/json');
+                    request.send(JSON.stringify(Product));
+                
+
+         }
+
+
+
+
+
+
+    </script>
+</body>
+</html>

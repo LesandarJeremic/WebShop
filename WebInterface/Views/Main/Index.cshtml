@@ -1,0 +1,184 @@
+﻿
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        caption{
+            font:bold 20px arial;
+               }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        
+        
+        .selected {
+    background-color: brown;
+    color: #FFF;
+}
+ 
+        #Buttons{
+            text-align:center;
+            position:relative;
+        }
+        td {
+           
+    cursor: pointer;
+}
+     
+        
+            
+        
+    </style>
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+    <div> 
+        <table id="ProductTable">
+            <caption class="unselectable">Product Table</caption>
+         <tr> <th>Product Id</th> <th>Name</th> <th>Description</th><th>Category</th><th>Supplier</th><th>Producer</th><th>Price</th>
+             </tr>
+         
+        
+        </table>
+       <br />
+        
+        <div id="Buttons">
+            <button disabled id="update" onclick="Upd()">Alter row</button>
+        <button class="delete" onclick="Del()">Delete row</button>
+        <button class="create" onclick="Crt()" >Insert row</button>
+        </div>
+        <form id="myForm" action="Alter" method="get">
+            <input hidden type="text" name="Id" />
+            <input hidden type="text" name="Name" />
+            <input hidden type="text" name="Description" />
+            <input hidden type="text" name="Category" />
+            <input hidden type="text" name="Price" />
+            <input hidden type="text" name="Producer" />
+            <input hidden type="text" name="Supplier" />
+            <input type="submit" style="visibility: hidden;" />
+
+            
+        </form>
+    </div>
+    <script>
+        var table = document.getElementById("ProductTable");
+        
+        
+        function showProducts() {
+            
+            var request = new XMLHttpRequest();
+
+            request.onreadystatechange = function () {
+                if (request.readyState == 4 && request.status == 200) {
+
+                    var products = JSON.parse(request.responseText);
+               
+
+                    
+                    var s = "";
+                    for (var p in products)
+                    {
+                       
+                        
+
+                        s += "<tr><td>"
+                            + products[p].Id + "</td><td> " +
+                            products[p].Name + "</td><td>" +
+                            products[p].Description + "</td><td>"+
+                            products[p].Category + "</td><td>"+
+                            products[p].Supplier + "</td><td>"+
+                           products[p].Producer + "</td><td>"
+                           +products[p].Price + "</td></tr>"
+
+                        
+                        
+                        
+                } 
+                    
+                    table.insertAdjacentHTML("beforeend",s)
+                    ;
+                }
+            };
+
+            request.open("GET", "GetProducts", true); request.send();
+        }
+       
+    
+        table.onclick = highlight;
+         selected = table.getElementsByClassName('selected');
+        function highlight(e) {
+            if (e.target.tagName == 'TH' || e.target.tagName == 'CAPTION' || e.target.tagName == 'TABLE') return;
+            if (e.target.tagName == 'TR') {
+                if (e.target.previousSibling.tagName == 'CAPTION') return;
+                document.getElementById("update").disabled = false;
+                e.target.className = 'selected'; return;
+            }
+
+                if (selected[0]) {
+                    if (selected[0] == e.target.parentNode) return;
+                    selected[0].className = '';
+                }
+                
+                e.target.parentNode.className = 'selected'; document.getElementById("update").disabled = false;
+            
+             }
+      
+        document.onload = showProducts();
+        
+        function Crt() {
+            document.getElementsByName("Id")[0].value = 0;
+            document.getElementById("myForm").submit();
+        };
+        function Del() {
+            var request = new XMLHttpRequest();
+
+            request.onreadystatechange = function () {
+                if (request.readyState == 4 && request.status == 200) {
+                    location.reload();
+               }
+            };
+            request.open("GET", "Delete?id="+$("#ProductTable tr.selected td:first").html(), true); request.send();
+            
+           
+           
+        };
+
+           function Upd(e) {
+           // var ProductId;
+                //ProductId = parseFloat($("#ProductTable tr.selected td:first").html());
+                if (selected) {
+                    document.getElementsByName("Id")[0].value = parseFloat($("#ProductTable tr.selected td:first").html());
+                    document.getElementsByName("Name")[0].value = $("#ProductTable tr.selected td:nth-child(2)").html();
+                    document.getElementsByName("Description")[0].value = $("#ProductTable tr.selected td:nth-child(3)").html();
+                    document.getElementsByName("Price")[0].value = parseFloat($("#ProductTable tr.selected td:nth-child(7)").html());
+                    document.getElementsByName("Category")[0].value = $("#ProductTable tr.selected td:nth-child(4)").html();
+                    document.getElementsByName("Supplier")[0].value = $("#ProductTable tr.selected td:nth-child(5)").html();
+                    document.getElementsByName("Producer")[0].value = $("#ProductTable tr.selected td:nth-child(6)").html();
+                    document.getElementById("myForm").submit();
+                    //var url = '
+                    //Url.Action("Alter", "Main")';
+                  //  window.location.href = url + "?id=" + ProductId;
+                }
+            }
+
+
+            
+           
+
+        
+       
+    </script>
+</body>
+</html>
