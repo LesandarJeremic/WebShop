@@ -45,10 +45,14 @@
 </head>
 <body>
     <div> 
-        <table id="ProductTable">
+        <table id="tab">
             <caption class="unselectable">Product Table</caption>
          <tr> <th>Product Id</th> <th>Name</th> <th>Description</th><th>Category</th><th>Supplier</th><th>Producer</th><th>Price</th>
              </tr>
+            <tbody id="ProductTable">
+
+            </tbody>
+
          
         
         </table>
@@ -58,7 +62,15 @@
             <button disabled id="update" onclick="Upd()">Alter row</button>
         <button class="delete" onclick="Del()">Delete row</button>
         <button class="create" onclick="Crt()" >Insert row</button>
+        
         </div>
+        <br />
+        <input checked id="Radio1" type="radio" name="rad" onclick="Radio1()"/> Read from Database
+        <input id="Radio2" type="radio" name="rad" onclick="Radio2()"/> Read from Json
+        <br />
+        <button id="button1" onclick="SaveJson()" disabled>save Json to database</button>
+        <button id="button2" onclick="Serialize()">Serialize Db to Json</button>
+        
         <form id="myForm" action="Alter" method="get">
             <input hidden type="text" name="Id" />
             <input hidden type="text" name="Name" />
@@ -73,9 +85,86 @@
         </form>
     </div>
     <script>
-        var table = document.getElementById("ProductTable");
+        var tab = document.getElementById("tab");
+        var productsList;
+        function Radio1() {
+            document.getElementById("button1").disabled = true;
+            document.getElementById("button2").disabled = false;
+            showProducts();
+        }
+        function Radio2() {
+            document.getElementById("button1").disabled = false;
+            document.getElementById("button2").disabled = true;
+            Deserialize();
+        }
+        function Serialize() {
+            var request = new XMLHttpRequest();
+
+            request.onreadystatechange = function () {
+                if (request.readyState == 4 && request.status == 200) {
+                    alert("Object successfully serialized!");
+                }
+            };
+            request.open("POST", "Serialize", true); request.send();
+
+        }
+        function SaveJson(){
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function () {
+                if (request.readyState == 4 && request.status == 200) {
+                    alert("Database successfully updated with json data!");
+                }
+            };
+            request.open("POST", "UpdateJson", true);
         
-        
+             
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.send(JSON.stringify(productsList));
+        }
+
+        function Deserialize() {
+            var request = new XMLHttpRequest();
+
+            request.onreadystatechange = function () {
+                if (request.readyState == 4 && request.status == 200) {
+                    document.Get
+                    var products = JSON.parse(request.responseText);
+                    var table = document.getElementById("ProductTable");
+                    var new_tbody = document.createElement('tbody');
+                    new_tbody.setAttribute("id", "ProductTable");
+
+
+                    var s = "";
+                    for (var p in products) {
+
+
+
+                        s += "<tr><td>"
+                            + products[p].Id + "</td><td> " +
+                            products[p].Name + "</td><td>" +
+                            products[p].Description + "</td><td>" +
+                            products[p].Category + "</td><td>" +
+                            products[p].Supplier + "</td><td>" +
+                           products[p].Producer + "</td><td>"
+                           + products[p].Price + "</td></tr>"
+
+
+
+
+                    }
+
+                    new_tbody.insertAdjacentHTML("beforeend", s)
+                    ;
+                    table.parentNode.replaceChild(new_tbody, table);
+                    alert("Object successfully deserialized!");
+                    document.getElementById("update").disabled = true;
+                    productsList=products;
+
+                }
+            };
+            request.open("GET", "Deserialize", true); request.send();
+
+        }
         function showProducts() {
             
             var request = new XMLHttpRequest();
@@ -84,7 +173,11 @@
                 if (request.readyState == 4 && request.status == 200) {
 
                     var products = JSON.parse(request.responseText);
-               
+
+                    var table = document.getElementById("ProductTable");
+                    var new_tbody = document.createElement('tbody');
+                    new_tbody.setAttribute("id", "ProductTable");
+
 
                     
                     var s = "";
@@ -106,8 +199,10 @@
                         
                         
                 } 
-                    
-                    table.insertAdjacentHTML("beforeend",s)
+                    new_tbody.insertAdjacentHTML("beforeend", s)
+                    ;
+                    table.parentNode.replaceChild(new_tbody, table);
+                    document.getElementById("update").disabled = true;
                     ;
                 }
             };
@@ -116,15 +211,16 @@
         }
        
     
-        table.onclick = highlight;
-         selected = table.getElementsByClassName('selected');
+        tab.onclick = highlight;
+         selected = tab.getElementsByClassName('selected');
         function highlight(e) {
             if (e.target.tagName == 'TH' || e.target.tagName == 'CAPTION' || e.target.tagName == 'TABLE') return;
             if (e.target.tagName == 'TR') {
                 if (e.target.previousSibling.tagName == 'CAPTION') return;
                 document.getElementById("update").disabled = false;
                 e.target.className = 'selected'; return;
-            }
+            } if (e.target.tagName == 'TBODY') return;
+            
 
                 if (selected[0]) {
                     if (selected[0] == e.target.parentNode) return;

@@ -2,10 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Json;
 using System.Web;
 using System.Web.Mvc;
-
+using WebInterface.Models;
 
 namespace WebInterface.Controllers
 {
@@ -72,6 +74,70 @@ namespace WebInterface.Controllers
                 return View();
             }
         }
+        [HttpPost]
+        public ActionResult UpdateJson(List<Product> prod)
+        {
+            try
+            {
+                // TODO: Add insert logic here
+                rep.AddList(prod);
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
+            }
+            catch
+            {
+                return View();
+            }
+        }
+        [HttpPost]
+        public ActionResult Serialize()
+            
+        {
+            try
+            {
+                rep.WriteJsonToFile();
+
+               
+                
+
+              
+
+
+
+
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
+            }
+            catch(Exception xcp)
+            {
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.InternalServerError);
+            }
+
+        }
+        [HttpGet]
+        public ActionResult Deserialize()
+
+        {
+            try
+            {
+                return Json(rep.Deserialize(),JsonRequestBehavior.AllowGet);
+
+
+        
+            }
+            catch (Exception xcp)
+            {
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.InternalServerError);
+            }
+
+        }
+
+
+
+
+
+
+
+
+
 
         // GET: Main/Edit/5
 
