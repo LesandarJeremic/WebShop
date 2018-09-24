@@ -1,8 +1,8 @@
-﻿@model Models.Product
+﻿@model WebInterface.Models.TransferIntern
 @{
-  
-
-
+    string check = "checked";
+    string t = "true";
+    string f = "false";
 }
 
 <!DOCTYPE html>
@@ -24,7 +24,7 @@
 
 <body>
     <div> 
-        Product ID: <input disabled id ="ProductIdText" type="text" value="@if (Model.Id != 0) {@Model.Id;}" />
+        Product ID: <input disabled data-value="@if(Model.create==true){@t;}else{@f}" id ="ProductIdText" type="text" value="@if (Model.create == false) {@Model.Id; } else if (Model.modeJson == true) {@Model.Id } "/>
 <br /> ProductName:<input maxlength="50" id="ProductNameText" type="text" value="@if (Model.Id != 0) {@Model.Name;}"/>
 <br />
 Product Description: <input maxlength="150" id="ProductDescriptionText" type="text" value="@if (Model.Id != 0) {@Model.Description;}"/>
@@ -90,8 +90,16 @@ Create <input disabled id="RadioCreate" type="radio" name="R"  />
 
 
 <br />
+ To DataBase <input  @if (Model.modeJson != true) { @check;check = null; }  name = "1" disabled id = "radioToDatabase" type = "radio" />
+To Json <input @check disabled name="1" id="radioToJson" type="radio" />
 
-        
+
+
+
+
+
+
+
 
 
 
@@ -108,82 +116,96 @@ Create <input disabled id="RadioCreate" type="radio" name="R"  />
 
 
 
+
+
+
+
+
 <script>
-    
-   
-    
+
+
+
     function setRadioButton() {
-        if(
-        document.getElementById("ProductIdText").value != 0)
-            document.getElementById("RadioUpdate").checked=true;
+        var x= document.getElementById("ProductIdText").getAttribute("data-value");
+         if(
+          x!= "true")
+             document.getElementById("RadioUpdate").checked=true;
        
            
         else
             document.getElementById("RadioCreate").checked=true;
-           
-    }
-    document.onload=setRadioButton();
-
-
-
-//function Delete() {
-
-//}
-//function Create() {
-
-//}
-
-
-
-function Edit() {
-   
-    var request = new XMLHttpRequest();
-
-    var Product = new Object();
-    
-
- 
-    if (document.getElementById("RadioUpdate").checked==true)
-        Product.Id = document.getElementById("ProductIdText").value;
-    else Product.Id = 0;
-
-   
-
-        if (!document.getElementById("ProductNameText").value) { alert("Product name missing"); return; }
-        Product.Name = document.getElementById("ProductNameText").value;
-            
-        Product.Description = document.getElementById("ProductDescriptionText").value;
-        if (!document.getElementById("ProductProducerText").value) { alert("Product Producer missing"); return; }
-
-        Product.Producer = document.getElementById("ProductProducerText").value;
-        if (!document.getElementById("ProductSupplierText").value) { alert("Product Supplier missing"); return; }
-
-        Product.Supplier = document.getElementById("ProductSupplierText").value;
-
-        Product.Category = document.getElementById("ProductCategoryText").value;
-
-        if (!document.getElementById("ProductPriceText").value) { alert("Product Price missing"); return; }
-        Product.Price =parseFloat(document.getElementById("ProductPriceText").value);
-    
-                request.onreadystatechange = function () {
-                    if (request.readyState == 4 && request.status == 200) {
-
-                        if (document.getElementById("RadioUpdate").checked==true) alert("Product updated successfully!");
-                        else alert("Product created Successfully")
-                       
-                    }
-
-                }
-                if (document.getElementById("RadioUpdate").checked==true) {
-                     request.open("POST", "Update", true);
-                } else   
-                        request.open("POST", "Create", true);
-             
-                    request.setRequestHeader('Content-Type', 'application/json');
-                    request.send(JSON.stringify(Product));
-                
 
          }
+         document.onload=setRadioButton();
+
+
+
+         //function Delete() {
+
+         //}
+         //function Create() {
+
+         //}
+
+
+
+         function Edit(){
+
+             var request = new XMLHttpRequest();
+
+             var Product = new Object();
+
+
+
+             if (document.getElementById("RadioUpdate").checked==true)
+        Product.Id = document.getElementById("ProductIdText").value;
+             else if (document.getElementById("radioToJson").checked) { Product.Id = document.getElementById("ProductIdText").value; } else Product.Id = 0;
+
+
+
+                 if (!document.getElementById("ProductNameText").value) { alert("Product name missing"); return; }
+                 Product.Name = document.getElementById("ProductNameText").value;
+
+                 Product.Description = document.getElementById("ProductDescriptionText").value;
+                 if (!document.getElementById("ProductProducerText").value) { alert("Product Producer missing"); return; }
+
+                 Product.Producer = document.getElementById("ProductProducerText").value;
+                 if (!document.getElementById("ProductSupplierText").value) { alert("Product Supplier missing"); return; }
+
+                 Product.Supplier = document.getElementById("ProductSupplierText").value;
+
+                 Product.Category = document.getElementById("ProductCategoryText").value;
+
+                 if (!document.getElementById("ProductPriceText").value) { alert("Product Price missing"); return; }
+                 if (!parseFloat(document.getElementById("ProductPriceText").value) > 0) { alert("Product Price must be a positive number"); return; }
+                 Product.Price =parseFloat(document.getElementById("ProductPriceText").value);
+
+                 request.onreadystatechange = function () {
+                     if (request.readyState == 4 && request.status == 200) {
+
+                         if (document.getElementById("RadioUpdate").checked==true) alert("Product updated successfully!");
+                        else alert("Product created Successfully")
+
+
+
+                    }
+
+                     }
+                     if (document.getElementById("RadioUpdate").checked==true) {
+                             if(document.getElementById("radioToDatabase").checked)
+                                 request.open("POST", "Update", true);
+
+                    else  request.open("POST", "UpdateJsonOne", true);
+
+                                 } else
+                             if(document.getElementById("radioToDatabase").checked)
+                        request.open("POST", "Create", true); else  request.open("POST", "CreateJsonOne", true);
+
+                                 request.setRequestHeader('Content-Type', 'application/json');
+                                 request.send(JSON.stringify(Product));
+
+
+                                 }
 
 
 

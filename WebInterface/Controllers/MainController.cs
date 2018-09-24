@@ -46,11 +46,26 @@ namespace WebInterface.Controllers
 
         // GET: Main/Details/5
         [HttpGet]
-        public ActionResult Alter(Product prod)
+        public ActionResult Alter(Transfer prod)
         {
+            TransferIntern prodI = new TransferIntern();
+            prodI.Id = prod.Id;
+            prodI.Name = prod.Name;
+            prodI.Category = prod.Category;
+            prodI.Supplier = prod.Supplier;
+            prodI.Producer = prod.Producer;
+            prodI.Description = prod.Description;
+            prodI.Price = prod.Price;
+            prodI.modeJson = prod.modeJson;
 
-
-            return View(prod);
+            if (prod.Id == 0) prodI.create = true; else prodI.create = false;
+                     
+                        if(prodI.create==true&&prod.modeJson==true)
+            {
+                prodI.Id= rep.GetLastJsonIndex();
+            }
+            
+            return View(prodI);
         }
 
         // GET: Main/Create
@@ -75,6 +90,20 @@ namespace WebInterface.Controllers
             }
         }
         [HttpPost]
+        public ActionResult CreateJsonOne(Product prod)
+        {
+            try
+            {
+                // TODO: Add insert logic here
+                rep.CreateJson(prod);
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
+            }
+            catch
+            {
+                return View();
+            }
+        }
+        [HttpPost]
         public ActionResult UpdateJson(List<Product> prod)
         {
             try
@@ -88,7 +117,22 @@ namespace WebInterface.Controllers
                 return View();
             }
         }
-        [HttpPost]
+    
+    [HttpPost]
+    public ActionResult UpdateJsonOne(Product prod)
+    {
+        try
+        {
+            // TODO: Add insert logic here
+            rep.UpdateJsonOne(prod);
+            return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
+        }
+        catch
+        {
+            return View();
+        }
+    }
+    [HttpPost]
         public ActionResult Serialize()
             
         {
@@ -165,7 +209,12 @@ namespace WebInterface.Controllers
             rep.Delete(rep.Get(id));
             return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
         }
-
+        [HttpGet]
+        public ActionResult DeleteJsonOne(int id)
+        {
+            rep.DeleteJsonOne(rep.Get(id));
+            return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
+        }
         // POST: Main/Delete/5
         [HttpPost]
         public ActionResult Delete(int id, FormCollection collection)
